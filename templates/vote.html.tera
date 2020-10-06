@@ -12,10 +12,6 @@
 </div>
 {% if second %}
 <div class="card border-info mt-3">
-  <div class="card-header bg-info text-white">
-    The runner-up in this election is:
-    Candidatos
-  </div>
   <div class="card-body">
     <h5 class="card-title">{{ second.title }}</h5>
     <p class="card-text">{{ second.body }}</p>
@@ -25,10 +21,6 @@
 
 {% if third %}
 <div class="card border-info mt-3">
-  <div class="card-header bg-info text-white">
-    The runner-up in this election is:
-    Candidatos
-  </div>
   <div class="card-body">
     <h5 class="card-title">{{ third.title }}</h5>
     <p class="card-text">{{ third.body }}</p>
@@ -67,7 +59,7 @@
     {% endif %}
     {% endfor %}
 
-    <div class="list-group-item list-group-item-action list-group-item-dark" data-id="void">I do not want to vote for the following:</div>
+    <div class="list-group-item list-group-item-action list-group-item-dark" data-id="void">NO quiero o NO puedo en los siguentes horarios:</div>
 
     {% for item in items %}
     {% if not item.1 is number %}

@@ -1,1 +1,1 @@
-web: ROCKET_PORT=$PORT target/release/personal_rocket
+web: ROCKET_PORT=$PORT target/release/vote

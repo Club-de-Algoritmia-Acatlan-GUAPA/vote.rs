@@ -24,6 +24,7 @@
     </div>
 </form>
 {% endblock %}
+
 {% block head %}
 {% if winner %}
 <meta name="twitter:card" content="summary" />
