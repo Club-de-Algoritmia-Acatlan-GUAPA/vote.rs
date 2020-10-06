@@ -11,7 +11,7 @@
     </head>
     <body>
         <nav class="navbar navbar-dark bg-primary">
-          <span class="navbar-brand mb-0 h1">Vota por los horarios que prefieras</span>
+          <span class="navbar-brand mb-0 h1">Votación Horarios C++ y Linux</span>
         </nav>
         <div class="container pt-3">
             {% block content %}{% endblock content %}

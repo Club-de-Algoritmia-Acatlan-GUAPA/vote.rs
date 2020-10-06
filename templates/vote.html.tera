@@ -30,7 +30,7 @@
 
 {% endif %}
 <div class="alert alert-info mt-3" role="alert">
-  Arrastra los horarios para ponerlos en el orden de tu preferencia.
+  Acomoda los horarios para ponerlos en el orden de tu preferencia, de mayor a menor.
   Horarios abajo de la barra gris son ignorados.
 </div>
 <style>
@@ -97,12 +97,19 @@ var sortable = Sortable.create(document.getElementById('ballot'), {
         }).then(function(e) {
             if (!e.ok) {
                 alert(
-                    "Tu voto no pudo ser registrado." +
-                    "Trata de refrescar la página o usa un navegador distinto" +
-                    "Si el problema persiste, reportalo con @mucinoa en el discord");
+                    "Tu voto no pudo ser registrado.\n" +
+                    "Trata de refrescar la página o usa un navegador distinto.\n" +
+                    "Si el problema persiste, reportalo por mensaje privado con @mucinoab en Discord.");
             }
         });
     }
 });
 </script>
+    <br>    <br>
+<div>
+      <input type="button" class="btn btn-primary" onclick="window.location.href='https://club-de-algoritmia-acatlan-guapa.github.io/';" value="Registrar Votos" />
+    </form>
+        </div>
+    </div>
+    <br>    <br>
 {% endblock %}
