@@ -14,7 +14,7 @@ extern crate rcir;
 
 mod schema;
 
-use diesel::SqliteConnection;
+use diesel::PgConnection;
 use rocket::http::{Cookie, Cookies};
 use rocket::outcome::IntoOutcome;
 use rocket::request::{self, Form, FromRequest, Request};
@@ -23,13 +23,14 @@ use rocket_contrib::{json::Json, templates::Template};
 
 use schema::{Ballot, Item, NewUser, Vote};
 
-#[database("sqlite_database")]
-pub struct DbConn(SqliteConnection);
+#[database("postgresql_database")]
+pub struct DbConn(PgConnection);
 
 #[derive(Debug, Serialize)]
 struct Context {
     winner: Option<Item>,
     second: Option<Item>,
+    third: Option<Item>,
     items: Vec<(Item, Option<i32>)>,
 }
 
@@ -38,6 +39,7 @@ impl Context {
         Context {
             winner: Vote::run_election(conn),
             second: None,
+            third: None,
             items: Vec::new(), // not used if not logged in
         }
     }
@@ -45,9 +47,11 @@ impl Context {
     pub fn for_user(user: Auth, conn: &DbConn) -> Context {
         let winner = Vote::run_election(conn);
         let second = Vote::run_second_election(conn, &winner);
+        let third = Vote::run_third_election(conn, &winner, &second);
         Context {
             winner,
             second,
+            third,
             items: Item::for_user(user.0, conn),
         }
     }

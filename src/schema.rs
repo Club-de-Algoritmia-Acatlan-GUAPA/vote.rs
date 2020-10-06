@@ -73,21 +73,36 @@ pub struct NewUser {
 }
 
 impl NewUser {
-    pub fn login(self, conn: &SqliteConnection) -> User {
+    pub fn login(self, conn: &PgConnection) -> User {
         // ensure that the user exists
-        let _ = diesel::insert_into(self::schema::users::table)
+        match diesel::insert_into(self::schema::users::table)
             .values(&self)
-            .execute(conn);
+            .execute(conn)
+        {
+            Err(e) => {
+                eprintln!("error [ {} ]", e);
+                panic!();
+            }
+            Ok(ok) => {
+                eprintln!("error [ {} ]", ok);
+            }
+        }
 
-        all_users
+        match all_users
             .filter(users_uname.eq(&self.username))
             .get_result::<User>(conn)
-            .unwrap()
+        {
+            Err(e) => {
+                eprintln!("error [ {} ]", e);
+                panic!();
+            }
+            Ok(user) => user,
+        }
     }
 }
 
 impl Item {
-    pub fn for_user(uid: i32, conn: &SqliteConnection) -> Vec<(Item, Option<i32>)> {
+    pub fn for_user(uid: i32, conn: &PgConnection) -> Vec<(Item, Option<i32>)> {
         all_items
             .left_join(
                 self::schema::votes::table
@@ -102,7 +117,7 @@ impl Item {
 }
 
 impl Vote {
-    pub fn run_election(conn: &SqliteConnection) -> Option<Item> {
+    pub fn run_election(conn: &PgConnection) -> Option<Item> {
         let votes = all_votes
             .inner_join(self::schema::items::table)
             .filter(item_done.eq(false))
@@ -130,7 +145,7 @@ impl Vote {
         }
     }
 
-    pub fn run_second_election(conn: &SqliteConnection, winner: &Option<Item>) -> Option<Item> {
+    pub fn run_second_election(conn: &PgConnection, winner: &Option<Item>) -> Option<Item> {
         let winner = winner.as_ref()?;
 
         let votes = all_votes
@@ -161,7 +176,44 @@ impl Vote {
         }
     }
 
-    pub fn save_ballot(uid: i32, ballot: Ballot, conn: &SqliteConnection) {
+    pub fn run_third_election(
+        conn: &PgConnection,
+        winner: &Option<Item>,
+        second: &Option<Item>,
+    ) -> Option<Item> {
+        let winner = winner.as_ref()?;
+        let second = second.as_ref()?;
+
+        let votes = all_votes
+            .inner_join(self::schema::items::table)
+            .filter(item_done.eq(false))
+            .filter(item_id.ne(winner.id))
+            .filter(item_id.ne(second.id))
+            .order((user_id.asc(), ordinal.asc()))
+            .select((user_id, item_id, ordinal))
+            .get_results::<Vote>(conn)
+            .unwrap();
+
+        // the extra collections here are sad.
+        let votes: Vec<Vec<_>> = votes
+            .into_iter()
+            .group_by(|v| v.user_id)
+            .into_iter()
+            .map(|(_, ballot)| ballot.into_iter().map(|v| v.item_id).collect())
+            .collect();
+
+        match rcir::run_election(&votes, rcir::MajorityMode::RemainingMajority).ok()? {
+            rcir::ElectionResult::Winner(&iid) => {
+                Some(all_items.find(iid).get_result::<Item>(conn).unwrap())
+            }
+            rcir::ElectionResult::Tie(iids) => {
+                // TODO: maybe pick the oldest one?
+                Some(all_items.find(*iids[0]).get_result::<Item>(conn).unwrap())
+            }
+        }
+    }
+
+    pub fn save_ballot(uid: i32, ballot: Ballot, conn: &PgConnection) {
         diesel::delete(all_votes.filter(user_id.eq(&uid)))
             .execute(conn)
             .unwrap();
