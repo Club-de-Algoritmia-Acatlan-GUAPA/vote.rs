@@ -3,9 +3,6 @@
 [global]
 template_dir = "templates"
 
-[global.databases.postgresql_database]
-url = "postgres://ajlncicnjyhzxg:1a28767c9fcb98ff99c397443ad325b5f6e995d773cd7160e73ff4795fb2de92@ec2-107-22-241-205.compute-1.amazonaws.com:5432/d4lct3rgupv506"
-
 [production]
 workers = 1
 keep_alive = 5

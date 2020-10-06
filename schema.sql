@@ -27,13 +27,13 @@ CREATE UNIQUE INDEX no_dup_votes ON votes(user_id, item_id);
 CREATE INDEX ballot ON votes(user_id ASC, ordinal ASC);
 
 INSERT INTO items (title, body) VALUES ('Lunes', '13:00-14:00, Instructores disponibles: 3');
-INSERT INTO items (title, body) VALUES ('Lunes', '14:00-15:00, Instructores disponibles: 2');
+INSERT INTO items (title, body) VALUES ('Lunes', '14:00-15:00, Instructores disponibles: 1');
 
 INSERT INTO items (title, body) VALUES ('Martes', '13:00-14:00, Instructores disponibles: 3');
 INSERT INTO items (title, body) VALUES ('Martes', '19:00-20:00, Instructores disponibles: 3');
 
 INSERT INTO items (title, body) VALUES ('Miércoles', '13:00-14:00, Instructores disponibles: 3');
-INSERT INTO items (title, body) VALUES ('Miércoles', '14:00-15:00, Instructores disponibles: 2');
+INSERT INTO items (title, body) VALUES ('Miércoles', '14:00-15:00, Instructores disponibles: 1');
 
 INSERT INTO items (title, body) VALUES ('Jueves', '13:00-14:00, Instructores disponibles: 3');
 

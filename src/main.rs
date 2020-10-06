@@ -68,7 +68,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
             .cookies()
             .get_private("user_id")
             .and_then(|cookie| cookie.value().parse().ok())
-            .map(|id| Auth(id))
+            .map(Auth)
             .or_forward(())
     }
 }
