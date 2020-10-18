@@ -19,6 +19,7 @@ use rocket::http::{Cookie, Cookies};
 use rocket::outcome::IntoOutcome;
 use rocket::request::{self, Form, FromRequest, Request};
 use rocket::Rocket;
+use rocket_contrib::serve::StaticFiles;
 use rocket_contrib::{json::Json, templates::Template};
 
 use schema::{Ballot, Item, NewUser, Vote};
@@ -110,6 +111,7 @@ fn rocket() -> (Rocket, Option<DbConn>) {
     let rocket = rocket::ignite()
         .attach(DbConn::fairing())
         .mount("/", routes![index, index_head, login, votes, vote])
+        .mount("/", StaticFiles::from("./templates"))
         .attach(Template::fairing());
 
     let conn = match cfg!(test) {

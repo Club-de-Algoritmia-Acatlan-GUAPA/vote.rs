@@ -74,25 +74,16 @@ pub struct NewUser {
 
 impl NewUser {
     pub fn login(self, conn: &PgConnection) -> User {
-        match diesel::insert_into(self::schema::users::table)
+        let _ = diesel::insert_into(self::schema::users::table)
             .values(&self)
-            .execute(conn)
-        {
-            Err(e) => {
-                eprintln!("login error [ {} ]", e);
-            }
-            Ok(ok) => {
-                eprintln!("login ok [ {} ]", ok);
-            }
-        }
+            .execute(conn);
 
         match all_users
             .filter(users_uname.eq(&self.username))
             .get_result::<User>(conn)
         {
             Err(e) => {
-                eprintln!("all users panic, maybe database [ {} ]", e);
-                panic!();
+                unreachable!("all users panic, maybe database [ {} ]", e);
             }
             Ok(user) => user,
         }

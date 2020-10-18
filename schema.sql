@@ -35,7 +35,7 @@ INSERT INTO items (title, body) VALUES ('Martes', '19:00-20:00, Instructores dis
 INSERT INTO items (title, body) VALUES ('Miércoles', '13:00-14:00, Instructores disponibles: 3');
 INSERT INTO items (title, body) VALUES ('Miércoles', '14:00-15:00, Instructores disponibles: 1');
 
-INSERT INTO items (title, body) VALUES ('Jueves', '13:00-14:00, Instructores disponibles: 3');
+INSERT INTO items (title, body) VALUES ('Jueves', '13:00-14:00, Instructores disponibles: 2');
 
 INSERT INTO items (title, body) VALUES ('Viernes', '13:00-14:00, Instructores disponibles: 3');
 INSERT INTO items (title, body) VALUES ('Viernes', '14:00-15:00, Instructores disponibles: 3');
