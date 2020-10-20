@@ -10,7 +10,7 @@
     </head>
     <body>
         <nav class="navbar navbar-dark bg-primary">
-          <span class="navbar-brand mb-0 h1">Votación Horarios Entrenamiento Programación Competitiva</span>
+          <span class="navbar-brand mb-0 h1">Votación Programación Competitiva</span>
         </nav>
         <div class="container pt-3">
             {% block content %}{% endblock content %}

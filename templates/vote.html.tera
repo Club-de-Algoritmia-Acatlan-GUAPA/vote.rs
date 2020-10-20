@@ -107,7 +107,7 @@ var sortable = Sortable.create(document.getElementById('ballot'), {
 </script>
     <br>    <br>
 <div>
-      <input type="button" class="btn btn-primary" onclick="window.location.href='https://club-de-algoritmia-acatlan-guapa.github.io/';" value="Registrar Votos" />
+      <input type="button" class="btn btn-primary" onclick="window.location.href='https://club-de-algoritmia-acatlan-guapa.github.io/nosotros';" value="Registrar Votos" />
     </form>
         </div>
     </div>
