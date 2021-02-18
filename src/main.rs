@@ -14,6 +14,8 @@ extern crate rcir;
 
 mod schema;
 
+use std::collections::HashSet;
+
 use diesel::PgConnection;
 use rocket::http::{Cookie, Cookies};
 use rocket::outcome::IntoOutcome;
@@ -107,10 +109,19 @@ fn index_head(conn: DbConn) -> Template {
     index(conn)
 }
 
+#[post("/mem", format = "application/json", data = "<user>")]
+fn auth_users(user: Json<HashSet<String>>) {
+    //TODO, do the real auth, RwLock, etc
+    eprintln!("{:?}", user);
+}
+
 fn rocket() -> (Rocket, Option<DbConn>) {
     let rocket = rocket::ignite()
         .attach(DbConn::fairing())
-        .mount("/", routes![index, index_head, login, votes, vote])
+        .mount(
+            "/",
+            routes![index, index_head, login, votes, vote, auth_users],
+        )
         .mount("/", StaticFiles::from("./templates"))
         .attach(Template::fairing());
 

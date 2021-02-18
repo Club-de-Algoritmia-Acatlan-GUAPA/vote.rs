@@ -9,3 +9,6 @@ keep_alive = 5
 log = "critical"
 base_url = "https://guapa.herokuapp.com/"
 limits = { forms = 8192 }
+
+[global.limits]
+json = 5242880
