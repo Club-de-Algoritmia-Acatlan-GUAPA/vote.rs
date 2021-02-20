@@ -49,8 +49,8 @@ pub struct Item {
     pub done: bool,
 }
 
-#[table_name = "votes"]
 #[derive(Queryable, Insertable, Debug, Clone)]
+#[table_name = "votes"]
 pub struct Vote {
     pub user_id: i32,
     pub item_id: i32,
@@ -66,14 +66,14 @@ pub struct Ballot {
     pub votes: Vec<i32>,
 }
 
-#[table_name = "users"]
 #[derive(FromForm, Insertable)]
+#[table_name = "users"]
 pub struct NewUser {
     pub username: String,
 }
 
 impl NewUser {
-    pub fn login(self, conn: &PgConnection) -> User {
+    pub fn login(self, conn: &PgConnection) -> Option<User> {
         let _ = diesel::insert_into(self::schema::users::table)
             .values(&self)
             .execute(conn);
@@ -82,10 +82,9 @@ impl NewUser {
             .filter(users_uname.eq(&self.username))
             .get_result::<User>(conn)
         {
-            Err(e) => {
-                unreachable!("all users panic, maybe database [ {} ]", e);
-            }
-            Ok(user) => user,
+            Err(_) => None,
+
+            Ok(user) => Some(user),
         }
     }
 }

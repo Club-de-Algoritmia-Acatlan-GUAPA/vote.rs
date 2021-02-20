@@ -1,5 +1,4 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-#![feature(never_type)]
+#![feature(proc_macro_hygiene, decl_macro, never_type, once_cell)]
 
 #[macro_use]
 extern crate rocket;
@@ -14,7 +13,11 @@ extern crate rcir;
 
 mod schema;
 
-use std::collections::HashSet;
+use std::{
+    collections::{HashMap, HashSet},
+    lazy::SyncLazy,
+    sync::RwLock,
+};
 
 use diesel::PgConnection;
 use rocket::http::{Cookie, Cookies};
@@ -26,6 +29,8 @@ use rocket_contrib::{json::Json, templates::Template};
 
 use schema::{Ballot, Item, NewUser, Vote};
 
+static AUTH: SyncLazy<RwLock<HashSet<String>>> = SyncLazy::new(|| RwLock::new(HashSet::new()));
+
 #[database("postgresql_database")]
 pub struct DbConn(PgConnection);
 
@@ -35,6 +40,7 @@ struct Context {
     second: Option<Item>,
     third: Option<Item>,
     items: Vec<(Item, Option<i32>)>,
+    not_user: bool,
 }
 
 impl Context {
@@ -44,6 +50,7 @@ impl Context {
             second: None,
             third: None,
             items: Vec::new(), // not used if not logged in
+            not_user: false,
         }
     }
 
@@ -56,6 +63,20 @@ impl Context {
             second,
             third,
             items: Item::for_user(user.0, conn),
+            not_user: false,
+        }
+    }
+
+    pub fn error() -> Context {
+        let winner = None;
+        let second = None;
+        let third = None;
+        Context {
+            winner,
+            second,
+            third,
+            items: Vec::new(),
+            not_user: true,
         }
     }
 }
@@ -79,10 +100,15 @@ impl<'a, 'r> FromRequest<'a, 'r> for Auth {
 #[post("/login", data = "<input>")]
 fn login(mut cookies: Cookies, input: Form<NewUser>, conn: DbConn) -> Template {
     let user = input.into_inner();
-    if user.username.is_empty() {
-        index(conn)
+    let users = AUTH.read().unwrap();
+
+    if !users.contains(&user.username) {
+        drop(users);
+        actualiza_usuarios();
+        Template::render("index", Context::error())
     } else {
-        let u = user.login(&conn);
+        drop(users);
+        let u = user.login(&conn).unwrap();
         cookies.add_private(Cookie::new("user_id", u.id.to_string()));
         votes(Auth(u.id), conn)
     }
@@ -109,20 +135,22 @@ fn index_head(conn: DbConn) -> Template {
     index(conn)
 }
 
-#[post("/mem", format = "application/json", data = "<user>")]
-fn auth_users(user: Json<HashSet<String>>) {
-    //TODO, do the real auth, RwLock, etc
-    eprintln!("{:?}", user);
+// el bot de discord de guapa envía los usuarios
+// al llegar uno nuevo (?)
+#[post("/mem", format = "application/json", data = "<users>")]
+fn auth_users(users: Json<HashSet<String>>) {
+    let mut auth = AUTH.write().unwrap();
+    auth.extend(users.into_inner());
 }
 
 fn rocket() -> (Rocket, Option<DbConn>) {
     let rocket = rocket::ignite()
+        .mount("/", StaticFiles::from("./static"))
         .attach(DbConn::fairing())
         .mount(
             "/",
             routes![index, index_head, login, votes, vote, auth_users],
         )
-        .mount("/", StaticFiles::from("./templates"))
         .attach(Template::fairing());
 
     let conn = match cfg!(test) {
@@ -135,4 +163,12 @@ fn rocket() -> (Rocket, Option<DbConn>) {
 
 fn main() {
     rocket().0.launch();
+}
+
+fn actualiza_usuarios() {
+    let client = reqwest::blocking::Client::new();
+    let mut map = HashMap::new();
+
+    map.insert("content", "!auth");
+    let _ = client.post(env!("DISCORD_HOOK")).json(&map).send();
 }

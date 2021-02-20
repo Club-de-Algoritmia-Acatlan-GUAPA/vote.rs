@@ -11,6 +11,26 @@
         </div>
     </div>
 </form>
+
+{% if not_user %}
+<br>
+  <div class="card-header bg-primary text-white" style="border-radius: 15px; background-color:#D0465E !important;">
+    <H4>Usuario no encontrado</H4>
+    <H6>
+      Por favor verifica que seas miembro del <a href="https://discord.com/invite/EJKBpR2" style="color: #7289DA; text-shadow: 1px 1px #000000;">Discord</a>.
+    </H6>
+    <H6>
+      Para ingresar puedes utilizar lo siguiente: 
+    </H6>
+    <ul>
+      <li>Nombre de usuario</li>
+      <li>Discriminante (el número después del "#")</li>
+      <li>Nombre de usuario más discriminante, ejemplo "GUAPAbot#12345"</li>
+      <li>ID de usuario de discord</li>
+    </ul>
+  </div>
+{% endif %}
+
 {% endblock %}
 
 {% block head %}
